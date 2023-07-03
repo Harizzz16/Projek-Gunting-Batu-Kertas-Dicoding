@@ -1,0 +1,22 @@
+# Proyek-Pertama-Predictive-Analytics-ML-Terapan-Dicoding
+# Laporan Proyek Machine Learning Prediksi Biaya Premi Asuransi - Haris Amaldi
+## Domain Proyek
+
+Pada proyek ini saya akan melatih model machine learning agar dapat membedakan gambar pola tangan gunting, batu, dan kertas 
+pada permainan pingsut jepang.
+
+## Proyek Understanding
+
+Proyek ini menggunakan database yang telah disediakan oleh dicoding pada link di bawah ini
+https://github.com/dicodingacademy/assets/releases/download/release/rockpaperscissors.zip.
+
+## Problem Statement
+
+Masalah pada proyek ini antara lain:
+ - Apakah model machine learning ini dapat membedakan ketiga jenis gambar pola tangan yang ada (gunting, batu, kertas) dengan cukup akurat?
+
+## Goals
+Tujuan dari proyek ini antara lain:
+ - Dapat membuat model machine learning yang dapat membedakan gambar pola tangan dengan akurasi diatas 85% dan dapat berjalan dibawah 30 menit.
+ - Dapat membuat model machine learning yang dapat memprediksi gambar yang diberikan sebagai gambar pola tangan yang sesuai dengan data yang telah dipelajari sebelumnya dengan baik.
+

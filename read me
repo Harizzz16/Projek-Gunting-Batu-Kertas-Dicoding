@@ -20,3 +20,120 @@ Tujuan dari proyek ini antara lain:
  - Dapat membuat model machine learning yang dapat membedakan gambar pola tangan dengan akurasi diatas 85% dan dapat berjalan dibawah 30 menit.
  - Dapat membuat model machine learning yang dapat memprediksi gambar yang diberikan sebagai gambar pola tangan yang sesuai dengan data yang telah dipelajari sebelumnya dengan baik.
 
+## Solution Statements
+Saya akan membuat model machine learning pengklasifikasi gambar menggunakan library Keras.
+
+# Data Understanding
+Dataset terdiri atas 2188 gambar RGB berukuran 300 pixel kali 200 pixel yang dibagi menjadi tiga jenis, yaitu 'rock'(726 gambar),
+'paper' (710 gambar), dan 'scissors' (752 gambar).
+
+#Proses pembuatan model
+## Import Library dan dataset
+import tensorflow as tf
+import zipfile,os
+local_zip = 'archive (8).zip'
+zip_ref = zipfile.ZipFile(local_zip, 'r')
+zip_ref.extractall('/tmp')
+zip_ref.close()
+
+## Mengimport train test split dan memilih bagian train
+from sklearn.model_selection import train_test_split
+
+train_dir = '/tmp/data'
+
+## Melakukan image data generator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+train_datagen = ImageDataGenerator(
+    rescale=1./255, 
+    rotation_range=20,
+    horizontal_flip=True, 
+    shear_range = 0.2, 
+    fill_mode = 'nearest', 
+    validation_split=0.2)
+
+## Memisahkan data latih dan validasi
+train_generator = train_datagen.flow_from_directory(
+    train_dir,
+    target_size=(150,150),
+    batch_size=4, 
+    class_mode='categorical',
+    subset='training')
+
+validation_generator = train_datagen.flow_from_directory(
+    train_dir,
+    target_size=(150,150),
+    batch_size=4, 
+    class_mode='categorical',
+    subset='validation')
+
+## modeling machine learning
+import tensorflow as tf
+model = tf.keras.models.Sequential([
+                                  tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(150, 150, 3)),
+                                    tf.keras.layers.MaxPooling2D(2, 2),
+                                    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
+                                    tf.keras.layers.MaxPooling2D(2,2),
+                                    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
+                                    tf.keras.layers.MaxPooling2D(2,2),
+                                    tf.keras.layers.Conv2D(128, (3,3), activation='relu'),
+                                    tf.keras.layers.MaxPooling2D(2,2),
+                                    tf.keras.layers.Conv2D(128, (3,3), activation='relu'),
+                                    tf.keras.layers.MaxPooling2D(2,2),
+                                    tf.keras.layers.Flatten(),
+                                    tf.keras.layers.Dense(512, activation='relu'),
+                                    tf.keras.layers.Dense(256, activation='relu'),
+                                    tf.keras.layers.Dense(3, activation='softmax')
+                                    ])
+model.compile(loss='categorical_crossentropy',
+              optimizer=tf.optimizers.Adam(),
+              metrics=['accuracy'])
+## Membuat perintah stop jika machine learning berhasil mencapai akurasi yang diinginkan
+class myCallback(tf.keras.callbacks.Callback):
+  def on_epoch_end(self, epoch, logs={}):
+    if(logs.get('accuracy')>0.92):
+      print("\nAkurasimu sudah lebih dari 92%. Selamat!")
+      self.model.stop_training = True
+callbacks = myCallback()
+
+## Menjalankan model machine learning
+model.fit(
+    train_generator,
+    steps_per_epoch=25,
+    epochs=25,
+    validation_data=validation_generator,
+    validation_steps=5,
+    verbose=2,
+    callbacks=[callbacks])
+
+## Mencoba hasil prediksi machine learning
+import numpy as np
+from google.colab import files
+from tensorflow.keras.preprocessing import image
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+%matplotlib inline
+
+uploaded = files.upload()
+
+for fn in uploaded.keys():
+ path = fn
+img = image.load_img(path, target_size=(150,150))
+imgplot = plt.imshow(img)
+x = image.img_to_array(img)
+x = np.expand_dims(x, axis=0)
+images = np.vstack([x])
+
+classes = model.predict(images, batch_size=10)
+
+print(fn)
+if classes[0, 0]:
+  print('Ini kertas')
+elif classes[0, 1]:
+  print('Ini batu')
+elif classes[0, 2]:
+    print('Ini gunting')
+
+## Hasil machine learning
